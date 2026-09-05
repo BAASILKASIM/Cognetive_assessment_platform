@@ -1,0 +1,104 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Assessment Instructions - Cognitive Assessment Platform{% endblock %}
+
+{% block content %}
+
+<div class="container py-5" style="max-width: 800px;">
+    
+    <div class="glass-card p-4 p-md-5 shadow-lg border">
+
+        <div class="text-center mb-4">
+            <span class="badge bg-primary-subtle text-primary border border-primary px-3 py-1 rounded-pill mb-2">
+                <i class="bi bi-shield-check me-1"></i> Pre-Assessment Protocol
+            </span>
+            <h2 class="fw-bold display-6">Participant Briefing & Guidelines</h2>
+            <p class="text-muted">
+                Please review these standardized testing conditions prior to initiating the cognitive evaluation battery.
+            </p>
+        </div>
+
+        <!-- 4 Readiness Chips -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="p-3 bg-white border rounded-3 text-center h-100 shadow-sm">
+                    <i class="bi bi-clock-history text-primary fs-3 d-block mb-1"></i>
+                    <small class="fw-bold d-block text-dark">5–7 Mins</small>
+                    <span class="text-muted" style="font-size: 0.75rem;">Estimated Time</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 bg-white border rounded-3 text-center h-100 shadow-sm">
+                    <i class="bi bi-laptop text-success fs-3 d-block mb-1"></i>
+                    <small class="fw-bold d-block text-dark">Desktop / Laptop</small>
+                    <span class="text-muted" style="font-size: 0.75rem;">Recommended</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 bg-white border rounded-3 text-center h-100 shadow-sm">
+                    <i class="bi bi-volume-mute text-purple fs-3 d-block mb-1" style="color: #7c3aed;"></i>
+                    <small class="fw-bold d-block text-dark">Quiet Room</small>
+                    <span class="text-muted" style="font-size: 0.75rem;">Minimize Distractions</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 bg-white border rounded-3 text-center h-100 shadow-sm">
+                    <i class="bi bi-lightning-charge text-warning fs-3 d-block mb-1"></i>
+                    <small class="fw-bold d-block text-dark">No Refreshes</small>
+                    <span class="text-muted" style="font-size: 0.75rem;">Continuous Flow</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Guidelines List -->
+        <div class="p-4 bg-white border rounded-4 mb-4">
+            <h5 class="fw-bold mb-3 text-dark">
+                <i class="bi bi-list-check text-primary me-2"></i> Standard Operating Guidelines
+            </h5>
+            <div class="d-flex flex-column gap-3">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width: 28px; height: 28px; font-weight: 700; font-size: 0.85rem;">1</div>
+                    <div>
+                        <strong class="text-dark d-block">Complete Baseline Information</strong>
+                        <span class="text-muted small">Provide accurate participant demographics and lifestyle indicators (sleep hours, stress level).</span>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-start gap-3">
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width: 28px; height: 28px; font-weight: 700; font-size: 0.85rem;">2</div>
+                    <div>
+                        <strong class="text-dark d-block">Visual Reaction Latency Task</strong>
+                        <span class="text-muted small">Stay focused on the reflex box and click as fast as possible the moment it changes to green across 5 trials.</span>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-start gap-3">
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width: 28px; height: 28px; font-weight: 700; font-size: 0.85rem;">3</div>
+                    <div>
+                        <strong class="text-dark d-block">Four-Stage Memory Battery</strong>
+                        <span class="text-muted small">Memorize visual grid highlights, icon objects, grid locations, and complete the delayed recall challenge.</span>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-start gap-3">
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width: 28px; height: 28px; font-weight: 700; font-size: 0.85rem;">4</div>
+                    <div>
+                        <strong class="text-dark d-block">Clock Drawing Test (CDT)</strong>
+                        <span class="text-muted small">Use mouse or touch input to draw a complete clock face setting the hands to 11:10 for Computer Vision analysis.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Start Button -->
+        <div class="text-center">
+            <a href="{% url 'participant' %}" class="btn btn-main btn-lg px-5 py-3 shadow-lg rounded-pill">
+                Begin Assessment Protocol <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

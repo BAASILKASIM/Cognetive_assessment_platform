@@ -1,0 +1,151 @@
+{% extends "accounts/assessment_base.html" %}
+{% load static %}
+
+{% block assessment_title %}
+Clock Drawing Test (CDT)
+{% endblock %}
+
+{% block assessment_description %}
+Draw a complete clock face with numbers 1 to 12 and position the hands to the requested target time for Computer Vision analysis.
+{% endblock %}
+
+{% block assessment_content %}
+
+<link rel="stylesheet" href="{% static 'css/clock_test.css' %}">
+
+<div class="container text-center" style="max-width: 720px;">
+
+    <!-- Instructions Box -->
+    <div id="instructionCard" class="instruction-box">
+        <h5>
+            <i class="bi bi-clock-history text-purple" style="color: #7c3aed;"></i>
+            Clock Drawing Test Instructions
+        </h5>
+        <p>
+            Please draw a complete clock on the digital canvas below:
+            <br>
+            <strong>1.</strong> Draw a large, closed circular clock contour face.
+            <br>
+            <strong>2.</strong> Place all <strong>12 numbers</strong> (1–12) in their correct positions around the perimeter.
+            <br>
+            <strong>3.</strong> Draw the clock hands setting the target time: <strong>11:10</strong> (10 minutes past 11).
+        </p>
+        <button id="startBtn" class="btn btn-main btn-lg px-5 py-2 rounded-pill shadow-sm">
+            <i class="bi bi-pencil-fill me-1"></i> Start Digital Canvas
+        </button>
+    </div>
+
+    <!-- Drawing Area -->
+    <div id="drawingArea" style="display: none;">
+
+        <!-- Target Time Indicator -->
+        <div class="target-time-badge">
+            <div class="rounded-circle p-2 bg-primary text-white d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                <i class="bi bi-alarm-fill fs-5"></i>
+            </div>
+            <div class="text-start">
+                <small class="text-muted fw-bold d-block">TARGET TIME TO DRAW</small>
+                <h3 class="mb-0">11:10 <span class="fs-6 text-muted fw-normal font-monospace">(10 past 11)</span></h3>
+            </div>
+        </div>
+
+        <div class="clock-canvas-container">
+
+            <!-- Toolbar -->
+            <div class="canvas-toolbar">
+                <button type="button" id="penBtn" class="tool-btn active">
+                    <i class="bi bi-pen-fill"></i> Pen
+                </button>
+                <button type="button" id="eraserBtn" class="tool-btn">
+                    <i class="bi bi-eraser-fill"></i> Eraser
+                </button>
+
+                <div class="vr mx-1"></div>
+
+                <div class="stroke-size-picker">
+                    <span class="text-muted small fw-semibold me-1">Size:</span>
+                    <button type="button" class="stroke-btn" data-size="2" title="Thin">
+                        <span class="stroke-dot sm"></span>
+                    </button>
+                    <button type="button" class="stroke-btn active" data-size="4" title="Medium">
+                        <span class="stroke-dot md"></span>
+                    </button>
+                    <button type="button" class="stroke-btn" data-size="8" title="Thick">
+                        <span class="stroke-dot lg"></span>
+                    </button>
+                </div>
+
+                <div class="vr mx-1"></div>
+
+                <button type="button" id="undoBtn" class="tool-btn" title="Undo">
+                    <i class="bi bi-arrow-counterclockwise"></i> Undo
+                </button>
+                <button type="button" id="clearBtn" class="tool-btn text-danger" title="Clear Canvas">
+                    <i class="bi bi-trash-fill"></i> Clear
+                </button>
+            </div>
+
+            <!-- Canvas Wrapper -->
+            <div class="canvas-wrapper">
+                <canvas id="clockCanvas"></canvas>
+            </div>
+
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="button" id="submitClockBtn" class="btn btn-main btn-lg px-5 py-3 rounded-pill shadow-lg">
+                <i class="bi bi-cpu-fill me-2"></i> Submit & Analyze with AI Computer Vision
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Loading Analysis Screen -->
+    <div id="loadingAnalysis" style="display: none;" class="my-5">
+        <div class="p-5 bg-white border rounded-4 shadow-lg mx-auto" style="max-width: 520px;">
+            <div class="cv-analysis-spinner"></div>
+            <h4 class="fw-bold text-dark mb-2">Analyzing Clock Drawing...</h4>
+            <p class="text-muted small mb-0 lh-base">
+                Computer Vision neural algorithms are calculating contour circularity, number radial symmetry, and clock hand angular vector offsets.
+            </p>
+        </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="resultCard" style="display: none;">
+        <div class="p-5 bg-white border rounded-4 shadow-lg mx-auto text-center" style="max-width: 520px;">
+            <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 72px; height: 72px;">
+                <i class="bi bi-check-lg display-5"></i>
+            </div>
+
+            <h3 class="fw-bold text-dark">Clock Drawing Analyzed!</h3>
+            <p class="text-muted small">Computer Vision Rouleau & Shulman scoring complete.</p>
+
+            <div class="my-4 p-4 rounded-4 bg-light border">
+                <small class="text-muted text-uppercase fw-bold letter-spacing-1">Clock Drawing Test Score</small>
+                <h1 class="text-primary fw-bold display-4 mb-1">
+                    <span id="clockScoreDisplay">0</span> <span class="fs-4 text-muted fw-semibold">/ 20</span>
+                </h1>
+                <p id="clockFeedbackDisplay" class="fs-6 fw-bold mb-3 text-success"></p>
+                <hr>
+                <div class="row text-start g-2" style="font-size: 0.9rem;">
+                    <div class="col-7 text-muted">Clock Face Contour:</div>
+                    <div class="col-5 text-end fw-bold"><span id="contourScoreDisplay">0</span> / 4</div>
+                    <div class="col-7 text-muted">Number Placement:</div>
+                    <div class="col-5 text-end fw-bold"><span id="numbersScoreDisplay">0</span> / 8</div>
+                    <div class="col-7 text-muted">Hands & Time Setting:</div>
+                    <div class="col-5 text-end fw-bold text-success"><span id="handsScoreDisplay">0</span> / 8</div>
+                </div>
+            </div>
+
+            <button class="btn btn-main btn-lg px-5 py-3 rounded-pill shadow-lg" id="continueBtn">
+                Generate Final Clinical Report <i class="bi bi-arrow-right ms-2"></i>
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<script src="{% static 'js/clock_canvas.js' %}"></script>
+
+{% endblock %}

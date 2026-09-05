@@ -1,0 +1,103 @@
+{% extends "accounts/assessment_base.html" %}
+{% load static %}
+
+{% block assessment_title %}
+Object Recognition Memory
+{% endblock %}
+
+{% block assessment_description %}
+Study the 8 target items during the exposure window, then complete the recognition challenges.
+{% endblock %}
+
+{% block assessment_content %}
+
+<link rel="stylesheet" href="{% static 'css/recognition_memory.css' %}">
+
+<div class="container" style="max-width: 720px;">
+
+    <!-- Instructions Box -->
+    <div id="instructionCard" class="instruction-box">
+        <h5>
+            <i class="bi bi-eye-fill text-primary"></i>
+            Task Instructions
+        </h5>
+        <p>
+            You will be presented with a set of <strong>8 distinct objects</strong> for <strong>10 seconds</strong>. 
+            Study their visual icons and labels carefully. Afterward, answer 5 questions testing item recognition and distractor rejection.
+        </p>
+        <button id="startBtn" class="btn btn-main btn-lg px-5 py-2 rounded-pill shadow-sm">
+            <i class="bi bi-play-fill me-1"></i> Memorize 8 Objects
+        </button>
+    </div>
+
+    <!-- Exposure Screen -->
+    <div id="exposureScreen" style="display: none;">
+        <div class="text-center mb-4">
+            <span class="badge bg-warning-subtle text-dark border border-warning px-3 py-1 rounded-pill mb-2">
+                <i class="bi bi-stopwatch me-1"></i> Memorization Window: <span id="timer" class="fw-bold">10</span>s Remaining
+            </span>
+            <h3 class="fw-bold text-dark">Memorize These 8 Objects</h3>
+        </div>
+
+        <div class="row g-3">
+            {% for icon in icons %}
+            <div class="col-6 col-md-3">
+                <div class="icon-card text-center">
+                    <i class="bi bi-{{ icon.id }} display-3"></i>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Question Screen -->
+    <div id="questionScreen" style="display: none;">
+        <div class="text-center mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-primary-subtle text-primary fs-6 px-3 py-1 rounded-pill" id="questionNumber">Question 1 of 5</span>
+                <span class="badge bg-light text-muted border">5 Marks Each</span>
+            </div>
+            <h3 id="questionText" class="fw-bold text-dark mt-2"></h3>
+        </div>
+
+        <div id="optionsContainer" class="row g-3"></div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="resultScreen" style="display: none;">
+        <div class="p-5 bg-white border rounded-4 shadow-lg text-center" style="max-width: 500px; margin: 0 auto;">
+            <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 72px; height: 72px;">
+                <i class="bi bi-check-lg display-5"></i>
+            </div>
+
+            <h3 class="fw-bold text-dark">Recognition Memory Complete!</h3>
+            <p class="text-muted small">Item recognition & distractor filtering evaluated.</p>
+
+            <div class="my-4 p-4 rounded-4 bg-light border">
+                <small class="text-muted text-uppercase fw-bold letter-spacing-1">Recognition Score</small>
+                <h1 class="text-primary fw-bold display-4 mb-0">
+                    <span id="finalScore">0</span> <span class="fs-4 text-muted fw-semibold">/ 25</span>
+                </h1>
+                <p id="feedback" class="fs-6 fw-bold mt-2 mb-0 text-success"></p>
+            </div>
+
+            <button class="btn btn-main btn-lg px-5 py-3 rounded-pill shadow-lg" id="continueBtn">
+                Continue to Object Location Memory <i class="bi bi-arrow-right ms-2"></i>
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<!-- Safely pass questions to JavaScript -->
+{{ questions|json_script:"questions-data" }}
+
+<script>
+    const QUESTIONS = JSON.parse(
+        document.getElementById("questions-data").textContent
+    );
+</script>
+
+<script src="{% static 'js/recognition_memory.js' %}"></script>
+
+{% endblock %}

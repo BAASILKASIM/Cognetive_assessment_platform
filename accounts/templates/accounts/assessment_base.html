@@ -1,0 +1,122 @@
+{% extends "accounts/base.html" %}
+
+{% block content %}
+
+<div class="container py-4 py-md-5">
+
+    <!-- Header -->
+    <div class="assessment-header">
+        <span class="badge bg-primary-subtle text-primary border border-primary px-3 py-1 rounded-pill mb-2">
+            <i class="bi bi-cpu-fill me-1"></i> AI Powered Cognitive Suite
+        </span>
+        <h2>
+            {% block assessment_title %}
+            Assessment
+            {% endblock %}
+        </h2>
+        <p>
+            {% block assessment_description %}
+            Complete each step carefully.
+            {% endblock %}
+        </p>
+    </div>
+
+    <!-- Main Stepper -->
+    <div class="assessment-stepper-container">
+        <div class="assessment-stepper">
+
+            <div class="step {% if current_step > 1 %}completed{% elif current_step == 1 %}active{% endif %}">
+                <div class="circle">
+                    {% if current_step > 1 %}<i class="bi bi-check-lg"></i>{% else %}<i class="bi bi-person-fill"></i>{% endif %}
+                </div>
+                <p>Participant</p>
+            </div>
+
+            <div class="step {% if current_step > 2 %}completed{% elif current_step == 2 %}active{% endif %}">
+                <div class="circle">
+                    {% if current_step > 2 %}<i class="bi bi-check-lg"></i>{% else %}<i class="bi bi-heart-pulse-fill"></i>{% endif %}
+                </div>
+                <p>Lifestyle</p>
+            </div>
+
+            <div class="step {% if current_step > 3 %}completed{% elif current_step == 3 %}active{% endif %}">
+                <div class="circle">
+                    {% if current_step > 3 %}<i class="bi bi-check-lg"></i>{% else %}<i class="bi bi-lightning-charge-fill"></i>{% endif %}
+                </div>
+                <p>Reaction</p>
+            </div>
+
+            <div class="step {% if current_step > 4 %}completed{% elif current_step == 4 %}active{% endif %}">
+                <div class="circle">
+                    {% if current_step > 4 %}<i class="bi bi-check-lg"></i>{% else %}<i class="bi bi-grid-3x3-gap-fill"></i>{% endif %}
+                </div>
+                <p>Memory</p>
+            </div>
+
+            <div class="step {% if current_step > 5 %}completed{% elif current_step == 5 %}active{% endif %}">
+                <div class="circle">
+                    {% if current_step > 5 %}<i class="bi bi-check-lg"></i>{% else %}<i class="bi bi-clock-history"></i>{% endif %}
+                </div>
+                <p>Clock</p>
+            </div>
+
+            <div class="step {% if current_step >= 6 %}active{% endif %}">
+                <div class="circle">
+                    <i class="bi bi-bar-chart-line-fill"></i>
+                </div>
+                <p>Report</p>
+            </div>
+
+        </div>
+
+        <!-- Overall Progress Bar -->
+        <div class="progress main-progress-bar">
+            <div class="progress-bar" role="progressbar" style="width: {{ progress }}%;" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100">
+                <span class="progress-glow"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Memory Submodule Progress Banner -->
+    {% if memory_step %}
+    <div class="memory-progress-banner glass-card p-4 mt-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="d-flex align-items-center gap-2">
+                <div class="memory-step-icon">
+                    <i class="bi bi-grid-3x3-gap-fill"></i>
+                </div>
+                <div>
+                    <h6 class="mb-0 fw-bold">Memory Assessment Module</h6>
+                    <small class="text-muted">
+                        {% if memory_step == 1 %}
+                        Task 1 of 4: Visual Pattern Recall
+                        {% elif memory_step == 2 %}
+                        Task 2 of 4: Object Recognition
+                        {% elif memory_step == 3 %}
+                        Task 3 of 4: Object-Location Association
+                        {% elif memory_step == 4 %}
+                        Task 4 of 4: Delayed Recall
+                        {% endif %}
+                    </small>
+                </div>
+            </div>
+            <span class="badge bg-primary rounded-pill px-3 py-2 fs-6 shadow-sm">
+                Module {{ memory_step }} / 4
+            </span>
+        </div>
+
+        <div class="progress" style="height: 10px; border-radius: 20px;">
+            <div class="progress-bar bg-success" role="progressbar" style="width: {% widthratio memory_step 4 100 %}%;"></div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Main Card Box -->
+    <div class="card-box">
+        {% block assessment_content %}
+        {% endblock %}
+    </div>
+
+</div>
+
+{% endblock %}

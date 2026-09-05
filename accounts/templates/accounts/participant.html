@@ -1,0 +1,86 @@
+{% extends "accounts/assessment_base.html" %}
+
+{% block assessment_title %}
+Participant Baseline Information
+{% endblock %}
+
+{% block assessment_description %}
+Please enter your participant details to personalize your baseline evaluation profile.
+{% endblock %}
+
+{% block assessment_content %}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-9 col-lg-8">
+
+        <form method="POST" class="needs-validation">
+            {% csrf_token %}
+
+            <!-- Full Name -->
+            <div class="mb-4">
+                <label class="form-label fw-bold text-dark mb-2">
+                    <i class="bi bi-person-fill text-primary me-1"></i> Full Name
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted">
+                        <i class="bi bi-person me-1"></i>
+                    </span>
+                    {{ form.name }}
+                </div>
+                <div class="form-text">Used for personalized report identification.</div>
+            </div>
+
+            <!-- Age -->
+            <div class="mb-4">
+                <label class="form-label fw-bold text-dark mb-2">
+                    <i class="bi bi-calendar-event-fill text-primary me-1"></i> Age (Years)
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted">
+                        <i class="bi bi-hash"></i>
+                    </span>
+                    {{ form.age }}
+                </div>
+                <div class="form-text">Participant age is used by the ML model to compare normative age baselines.</div>
+            </div>
+
+            <!-- Gender Selection (Custom 3D Cards) -->
+            <div class="mb-5">
+                <label class="form-label fw-bold text-dark mb-3">
+                    <i class="bi bi-gender-ambiguous text-primary me-1"></i> Gender Designation
+                </label>
+
+                <div class="row g-3">
+                    {% for radio in form.gender %}
+                    <div class="col-12 col-sm-4">
+                        <label class="option-card h-100 d-flex flex-column align-items-center justify-content-center">
+                            {{ radio.tag }}
+                            <span>
+                                {% if radio.choice_label == "Male" %}
+                                <i class="bi bi-gender-male fs-2 text-primary mb-1"></i>
+                                {% elif radio.choice_label == "Female" %}
+                                <i class="bi bi-gender-female fs-2 text-primary mb-1"></i>
+                                {% else %}
+                                <i class="bi bi-gender-trans fs-2 text-primary mb-1"></i>
+                                {% endif %}
+                                <strong class="fs-6">{{ radio.choice_label }}</strong>
+                            </span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Submit Action -->
+            <div class="text-center pt-2">
+                <button type="submit" class="btn btn-main btn-lg px-5 py-3 rounded-pill shadow-lg">
+                    Continue to Lifestyle Assessment <i class="bi bi-arrow-right ms-2"></i>
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

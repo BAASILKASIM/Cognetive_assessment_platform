@@ -1,0 +1,163 @@
+{% extends "accounts/assessment_base.html" %}
+
+{% block assessment_title %}
+Lifestyle & Circadian Assessment
+{% endblock %}
+
+{% block assessment_description %}
+Provide accurate information about your sleep, stress, and daily habits to feed the AI predictive model.
+{% endblock %}
+
+{% block assessment_content %}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-10 col-lg-9">
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- 1. Sleep Duration Slider -->
+            <div class="p-4 bg-white border rounded-4 mb-4 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <label class="form-label fw-bold text-dark mb-0 fs-5">
+                        <i class="bi bi-moon-stars-fill text-primary me-2"></i> Nightly Sleep Duration
+                    </label>
+                    <span class="badge bg-primary px-3 py-2 rounded-pill fs-6 fw-bold">
+                        <span id="sleepValueDisplay">7.0</span> Hours / Night
+                    </span>
+                </div>
+
+                <div class="py-2">
+                    {{ form.sleep_duration }}
+                </div>
+
+                <div class="d-flex justify-content-between small text-muted mt-2">
+                    <span>3 Hours (Severe Sleep Debt)</span>
+                    <span id="sleepStatusText" class="fw-semibold text-primary">Optimal Sleep (7.5h)</span>
+                    <span>12 Hours</span>
+                </div>
+            </div>
+
+            <!-- 2. Stress Level Slider -->
+            <div class="p-4 bg-white border rounded-4 mb-4 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <label class="form-label fw-bold text-dark mb-0 fs-5">
+                        <i class="bi bi-heart-pulse-fill text-danger me-2"></i> Current Stress Level
+                    </label>
+                    <span id="stressBadge" class="badge bg-info text-dark px-3 py-2 rounded-pill fs-6 fw-bold">
+                        Level <span id="stressValueDisplay">5</span> / 10
+                    </span>
+                </div>
+
+                <div class="py-2">
+                    {{ form.stress_level }}
+                </div>
+
+                <div class="d-flex justify-content-between small text-muted mt-2">
+                    <span class="text-success fw-semibold">1 = Relaxed & Calm</span>
+                    <span id="stressStatusText" class="fw-semibold text-dark">Moderate Stress</span>
+                    <span class="text-danger fw-semibold">10 = High Cortisol</span>
+                </div>
+            </div>
+
+            <!-- 3. Daily Screen Time Grid -->
+            <div class="p-4 bg-white border rounded-4 mb-4 shadow-sm">
+                <label class="form-label fw-bold text-dark mb-2 fs-5">
+                    <i class="bi bi-phone-fill text-info me-2"></i> Daily Digital Screen Exposure
+                </label>
+                <p class="text-muted small mb-3">Total hours spent using smartphones, computers, or TVs daily.</p>
+
+                <div class="option-grid">
+                    {% for radio in form.screen_time %}
+                    <label class="option-card">
+                        {{ radio.tag }}
+                        <span>
+                            <i class="bi bi-display"></i>
+                            {{ radio.choice_label }}
+                        </span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 4. Exercise Frequency Grid -->
+            <div class="p-4 bg-white border rounded-4 mb-5 shadow-sm">
+                <label class="form-label fw-bold text-dark mb-2 fs-5">
+                    <i class="bi bi-activity text-success me-2"></i> Physical Exercise Frequency
+                </label>
+                <p class="text-muted small mb-3">Weekly aerobic workouts or physical activities stimulating BDNF.</p>
+
+                <div class="option-grid">
+                    {% for radio in form.exercise_frequency %}
+                    <label class="option-card">
+                        {{ radio.tag }}
+                        <span>
+                            <i class="bi bi-person-walking"></i>
+                            {{ radio.choice_label }}
+                        </span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Submit Action -->
+            <div class="text-center pt-2">
+                <button type="submit" class="btn btn-main btn-lg px-5 py-3 rounded-pill shadow-lg">
+                    Save & Start Reaction Speed Test <i class="bi bi-arrow-right ms-2"></i>
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const sleepInput = document.getElementById("id_sleep_duration");
+        const sleepDisplay = document.getElementById("sleepValueDisplay");
+        const sleepStatus = document.getElementById("sleepStatusText");
+
+        const stressInput = document.getElementById("id_stress_level");
+        const stressDisplay = document.getElementById("stressValueDisplay");
+        const stressBadge = document.getElementById("stressBadge");
+        const stressStatus = document.getElementById("stressStatusText");
+
+        if (sleepInput) {
+            function updateSleep() {
+                const val = parseFloat(sleepInput.value).toFixed(1);
+                if (sleepDisplay) sleepDisplay.textContent = val;
+                if (sleepStatus) {
+                    if (val < 6.0) sleepStatus.textContent = "⚠ Sleep Debt Alert";
+                    else if (val <= 8.5) sleepStatus.textContent = "✅ Optimal Restorative Sleep";
+                    else sleepStatus.textContent = "🛌 Extended Sleep";
+                }
+            }
+            sleepInput.addEventListener("input", updateSleep);
+            updateSleep();
+        }
+
+        if (stressInput) {
+            function updateStress() {
+                const val = parseInt(stressInput.value);
+                if (stressDisplay) stressDisplay.textContent = val;
+                if (stressStatus && stressBadge) {
+                    if (val <= 3) {
+                        stressStatus.textContent = "😌 Calm / Low Stress";
+                        stressBadge.className = "badge bg-success px-3 py-2 rounded-pill fs-6 fw-bold";
+                    } else if (val <= 6) {
+                        stressStatus.textContent = "😐 Moderate Stress";
+                        stressBadge.className = "badge bg-info text-dark px-3 py-2 rounded-pill fs-6 fw-bold";
+                    } else {
+                        stressStatus.textContent = "⚠ Elevated Stress Level";
+                        stressBadge.className = "badge bg-danger px-3 py-2 rounded-pill fs-6 fw-bold";
+                    }
+                }
+            }
+            stressInput.addEventListener("input", updateStress);
+            updateStress();
+        }
+    });
+</script>
+
+{% endblock %}

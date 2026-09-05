@@ -1,0 +1,94 @@
+{% extends "accounts/assessment_base.html" %}
+{% load static %}
+
+{% block assessment_title %}
+Delayed Recall Memory Test
+{% endblock %}
+
+{% block assessment_description %}
+Evaluate long-term retention and retrieval accuracy of objects and configurations studied earlier in the session.
+{% endblock %}
+
+{% block assessment_content %}
+
+<link rel="stylesheet" href="{% static 'css/recognition_memory.css' %}">
+
+<div class="container" style="max-width: 720px;">
+
+    <!-- Instructions Box -->
+    <div id="instructionCard" class="instruction-box">
+        <h5>
+            <i class="bi bi-clock-history text-primary"></i>
+            Task Instructions
+        </h5>
+        <p>
+            You will answer <strong>4 delayed recall questions</strong> testing your ability to retrieve items, locations, and distractors from the earlier memory tasks. 
+            Each correct response awards <strong>5 marks</strong> (Total: <strong>20 marks</strong>).
+        </p>
+        <button id="startBtn" class="btn btn-main btn-lg px-5 py-2 rounded-pill shadow-sm">
+            <i class="bi bi-play-fill me-1"></i> Start Delayed Recall
+        </button>
+    </div>
+
+    <!-- Question Screen -->
+    <div id="questionScreen" style="display: none;">
+        <div class="text-center mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-primary-subtle text-primary fs-6 px-3 py-1 rounded-pill" id="questionNumber">Question 1 of 4</span>
+                <span class="badge bg-light text-muted border">5 Marks Each</span>
+            </div>
+            <h3 id="questionText" class="fw-bold text-dark mt-2"></h3>
+        </div>
+
+        <div id="optionsContainer" class="row g-3"></div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="resultScreen" style="display: none;">
+        <div class="p-5 bg-white border rounded-4 shadow-lg text-center" style="max-width: 520px; margin: 0 auto;">
+            <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 72px; height: 72px;">
+                <i class="bi bi-check-lg display-5"></i>
+            </div>
+
+            <h3 class="fw-bold text-dark">4-Stage Memory Battery Complete!</h3>
+            <p class="text-muted small">All four memory modules evaluated and aggregated.</p>
+
+            <div class="my-4 p-4 rounded-4 bg-light border">
+                <small class="text-muted text-uppercase fw-bold letter-spacing-1">Combined Total Memory Score</small>
+                <h1 class="text-primary fw-bold display-4 mb-1">
+                    <span id="finalTotalMemoryScore">0</span> <span class="fs-4 text-muted fw-semibold">/ 100</span>
+                </h1>
+                <p id="memoryFeedback" class="fs-6 fw-bold mb-3 text-success"></p>
+                <hr>
+                <div class="row text-start g-2" style="font-size: 0.9rem;">
+                    <div class="col-7 text-muted">1. Visual Pattern Recall:</div>
+                    <div class="col-5 text-end fw-bold"><span id="breakdownVisual">0</span> / 30</div>
+                    <div class="col-7 text-muted">2. Object Recognition:</div>
+                    <div class="col-5 text-end fw-bold"><span id="breakdownRecognition">0</span> / 25</div>
+                    <div class="col-7 text-muted">3. Spatial Location:</div>
+                    <div class="col-5 text-end fw-bold"><span id="breakdownLocation">0</span> / 25</div>
+                    <div class="col-7 text-muted">4. Delayed Recall:</div>
+                    <div class="col-5 text-end fw-bold text-success"><span id="breakdownDelayed">0</span> / 20</div>
+                </div>
+            </div>
+
+            <button class="btn btn-main btn-lg px-5 py-3 rounded-pill shadow-lg" id="continueBtn">
+                Continue to Clock Drawing Test <i class="bi bi-arrow-right ms-2"></i>
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<!-- Safely pass questions to JavaScript -->
+{{ questions|json_script:"questions-data" }}
+
+<script>
+    const QUESTIONS = JSON.parse(
+        document.getElementById("questions-data").textContent
+    );
+</script>
+
+<script src="{% static 'js/delayed_recall.js' %}"></script>
+
+{% endblock %}

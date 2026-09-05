@@ -1,0 +1,70 @@
+/* ======================================================
+   Visual Pattern Memory Grid - High Aesthetic
+====================================================== */
+
+#memoryGrid {
+    width: 380px;
+    margin: 25px auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding: 20px;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 28px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08), inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.memory-cell {
+    width: 100px;
+    height: 100px;
+    background: #f8fafc;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid #cbd5e1;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+    position: relative;
+    user-select: none;
+}
+
+.memory-cell:hover {
+    transform: translateY(-2px) scale(1.03);
+    border-color: #3b82f6;
+    background: #eff6ff;
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.15);
+}
+
+.memory-cell.active {
+    background: linear-gradient(135deg, #2563eb, #4f46e5) !important;
+    border-color: #60a5fa !important;
+    box-shadow: 0 0 25px rgba(37, 99, 235, 0.65), inset 0 2px 4px rgba(255, 255, 255, 0.5) !important;
+    transform: scale(1.05);
+    animation: cellFlash 0.3s ease;
+}
+
+.memory-cell.selected {
+    background: linear-gradient(135deg, #7c3aed, #6366f1) !important;
+    border-color: #a78bfa !important;
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(124, 58, 237, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.5) !important;
+}
+
+@keyframes cellFlash {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    50% { transform: scale(1.08); opacity: 1; }
+    100% { transform: scale(1.05); }
+}
+
+@media (max-width: 480px) {
+    #memoryGrid {
+        width: 310px;
+        gap: 10px;
+        padding: 14px;
+    }
+    .memory-cell {
+        width: 82px;
+        height: 82px;
+        border-radius: 16px;
+    }
+}

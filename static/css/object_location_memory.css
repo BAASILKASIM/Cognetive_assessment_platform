@@ -1,0 +1,134 @@
+/* ======================================================
+   Object Location Memory Grid & Board - High Aesthetic
+====================================================== */
+
+.memory-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 104px);
+    gap: 14px;
+    justify-content: center;
+    width: fit-content;
+    margin: 25px auto;
+    padding: 20px;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 28px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+}
+
+.grid-cell {
+    width: 104px;
+    height: 104px;
+    border-radius: 20px;
+    background: #ffffff;
+    border: 2px solid #cbd5e1;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    color: #1e293b;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.grid-cell i {
+    color: #2563eb;
+    filter: drop-shadow(0 3px 6px rgba(37, 99, 235, 0.25));
+}
+
+/* Dropzone Cells */
+#answerGrid .grid-cell {
+    border: 2px dashed #94a3b8;
+    background: #f8fafc;
+    cursor: pointer;
+}
+
+#answerGrid .grid-cell:hover {
+    border-color: #2563eb;
+    background: #eff6ff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
+}
+
+#answerGrid .grid-cell:not(:empty) {
+    border: 2px solid #2563eb;
+    background: #ffffff;
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.15);
+}
+
+/* Selected Object Badge */
+#selectedIcon {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 130px;
+    min-height: 90px;
+    padding: 12px 24px;
+    border-radius: 20px;
+    background: #eff6ff;
+    border: 2px solid #93c5fd;
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.12);
+    color: #1d4ed8;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-top: 8px;
+}
+
+#selectedIcon i {
+    color: #2563eb;
+    margin-bottom: 4px;
+    font-size: 1.8rem;
+}
+
+/* Icon Bank Tray */
+.icon-bank {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 20px;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 24px;
+    max-width: 600px;
+    margin: 20px auto 0;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.icon-item {
+    width: 80px;
+    height: 80px;
+    border-radius: 18px;
+    background: #f8fafc;
+    border: 2px solid #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+}
+
+.icon-item:hover {
+    transform: translateY(-3px) scale(1.05);
+    border-color: #2563eb;
+    background: #eff6ff;
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
+}
+
+.icon-item.selected {
+    border-color: #7c3aed;
+    background: #f3e8ff;
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.35);
+    transform: scale(1.08);
+}
+
+.icon-item.placed {
+    opacity: 0.35;
+    cursor: not-allowed;
+    border-style: dashed;
+    transform: none !important;
+}

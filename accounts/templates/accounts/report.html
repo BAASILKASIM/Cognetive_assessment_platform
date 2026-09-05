@@ -1,0 +1,1089 @@
+{% extends "accounts/assessment_base.html" %}
+{% load static %}
+
+{% block title %}Cognitive Assessment Report - {{ record.name }}{% endblock %}
+
+{% block assessment_title %}
+Cognitive Assessment Report
+{% endblock %}
+
+{% block assessment_description %}
+Comprehensive clinical and AI-predicted cognitive performance profile.
+{% endblock %}
+
+{% block assessment_content %}
+
+<!-- Include Chart.js for visualization -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    /* ================= Custom Report Styles ================= */
+    .report-wrapper {
+        color: #1e293b;
+    }
+
+    /* Executive Hero Card */
+    .report-hero-card {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #1e1b4b 100%);
+        color: #ffffff;
+        border-radius: 24px;
+        padding: 38px 32px;
+        margin-bottom: 35px;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .report-hero-card::before {
+        content: "";
+        position: absolute;
+        top: -60px;
+        right: -60px;
+        width: 320px;
+        height: 320px;
+        background: radial-gradient(circle, rgba(37, 99, 235, 0.3), transparent 70%);
+        pointer-events: none;
+    }
+
+    .report-hero-card::after {
+        content: "";
+        position: absolute;
+        bottom: -60px;
+        left: 20%;
+        width: 260px;
+        height: 260px;
+        background: radial-gradient(circle, rgba(124, 58, 237, 0.25), transparent 70%);
+        pointer-events: none;
+    }
+
+    .score-circle-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+
+    .score-circle {
+        width: 105px;
+        height: 105px;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0 auto 10px;
+        position: relative;
+        z-index: 1;
+        transition: transform 0.3s ease;
+    }
+
+    .score-circle:hover {
+        transform: scale(1.05);
+    }
+
+    .score-circle.primary {
+        background: linear-gradient(135deg, #2563eb, #6366f1);
+        color: #ffffff;
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45);
+        border: 3px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .score-circle.ai {
+        background: linear-gradient(135deg, #059669, #10b981);
+        color: #ffffff;
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.45);
+        border: 3px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .score-circle .score-subtext {
+        font-size: 0.65rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        opacity: 0.85;
+        margin-top: -4px;
+    }
+
+    /* Metric Cards */
+    .metric-card-custom {
+        background: #ffffff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 24px;
+        height: 100%;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .metric-card-custom:hover {
+        transform: translateY(-4px);
+        border-color: #93c5fd;
+        box-shadow: 0 14px 28px rgba(37, 99, 235, 0.10);
+    }
+
+    .sub-meter-container {
+        margin-top: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .sub-meter-row {
+        font-size: 0.82rem;
+    }
+
+    .sub-meter-bar {
+        height: 6px;
+        border-radius: 10px;
+        background: #f1f5f9;
+        overflow: hidden;
+        margin-top: 3px;
+    }
+
+    .sub-meter-fill {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.8s ease-in-out;
+    }
+
+    /* Clock Preview */
+    .clock-thumb-container {
+        position: relative;
+        display: inline-block;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 2px solid #cbd5e1;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+    .clock-thumb-container:hover {
+        transform: scale(1.04);
+        border-color: #7c3aed;
+        box-shadow: 0 8px 20px rgba(124, 58, 237, 0.25);
+    }
+
+    .clock-thumb-img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        display: block;
+        background: #f8fafc;
+    }
+
+    .clock-thumb-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.5);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .clock-thumb-container:hover .clock-thumb-overlay {
+        opacity: 1;
+    }
+
+    .clock-placeholder-box {
+        width: 100px;
+        height: 100px;
+        border-radius: 16px;
+        border: 2px dashed #cbd5e1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 0.75rem;
+        background: #f8fafc;
+    }
+
+    /* Chart Containers */
+    .chart-card-wrapper {
+        background: #ffffff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 24px;
+        height: 100%;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    }
+
+    .chart-canvas-box {
+        position: relative;
+        height: 290px;
+        width: 100%;
+    }
+
+    /* Lifestyle Cards */
+    .lifestyle-insight-card {
+        padding: 18px 20px;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        height: 100%;
+        transition: all 0.2s ease;
+    }
+
+    .lifestyle-insight-card:hover {
+        background: #ffffff;
+        border-color: #cbd5e1;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
+    }
+
+    /* Domain Table */
+    .domain-table {
+        margin-bottom: 0;
+    }
+
+    .domain-table th {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+        font-weight: 600;
+        border-bottom: 2px solid #e2e8f0;
+        padding: 12px 16px;
+    }
+
+    .domain-table td {
+        padding: 14px 16px;
+        vertical-align: middle;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    /* Print Stylesheet */
+    @media print {
+        body {
+            background: #ffffff !important;
+            color: #000000 !important;
+            font-size: 11pt !important;
+        }
+
+        .navbar, footer, .assessment-stepper, .progress, .no-print, .btn, .assessment-header {
+            display: none !important;
+        }
+
+        .container {
+            max-width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        .card-box {
+            box-shadow: none !important;
+            border: none !important;
+            padding: 0 !important;
+            background: transparent !important;
+        }
+
+        .report-hero-card {
+            background: #1e293b !important;
+            color: #ffffff !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            box-shadow: none !important;
+            border: 1px solid #334155 !important;
+            page-break-inside: avoid;
+        }
+
+        .score-circle.primary {
+            background: #2563eb !important;
+            color: #ffffff !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .score-circle.ai {
+            background: #059669 !important;
+            color: #ffffff !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .metric-card-custom, .chart-card-wrapper, .lifestyle-insight-card {
+            box-shadow: none !important;
+            border: 1px solid #cbd5e1 !important;
+            page-break-inside: avoid;
+        }
+
+        .chart-canvas-box {
+            height: 240px !important;
+        }
+    }
+</style>
+
+<div class="report-wrapper">
+
+    <!-- ================= Top Action / Meta Header ================= -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 pb-2 border-bottom">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <h4 class="fw-bold mb-0 text-primary">
+                    <i class="bi bi-person-bounding-box me-2"></i>{{ record.name }}
+                </h4>
+                <span class="badge {{ tier_config.badge_class }} rounded-pill px-3 py-1 fw-semibold">
+                    <i class="bi {{ tier_config.icon }} me-1"></i>{{ record.performance_tier }}
+                </span>
+            </div>
+            <div class="text-muted small mt-1">
+                <span>Age: <strong>{{ record.age }} yrs</strong></span> &nbsp;•&nbsp;
+                <span>Gender: <strong>{{ record.gender }}</strong></span> &nbsp;•&nbsp;
+                <span>Assessment Date: <strong>{{ record.created_at|date:"M d, Y - H:i" }}</strong></span> &nbsp;•&nbsp;
+                <span>Record ID: <strong class="font-monospace">#{{ record.id }}</strong></span>
+            </div>
+        </div>
+
+        <div class="no-print d-flex gap-2 align-items-center">
+            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm px-3 rounded-pill shadow-sm" title="Print or save as PDF">
+                <i class="bi bi-printer-fill me-1"></i> Print / PDF
+            </button>
+            <button id="downloadJsonBtn" class="btn btn-outline-info btn-sm px-3 rounded-pill shadow-sm" title="Export raw assessment data">
+                <i class="bi bi-download me-1"></i> JSON Data
+            </button>
+            <a href="{% url 'retake_assessment' %}" class="btn btn-main btn-sm px-4 rounded-pill shadow-sm" title="Restart full assessment">
+                <i class="bi bi-arrow-repeat me-1"></i> Retake Assessment
+            </a>
+        </div>
+    </div>
+
+    <!-- ================= Executive Hero Banner ================= -->
+    <div class="report-hero-card">
+        <div class="row align-items-center text-center text-md-start g-4">
+            
+            <!-- Overall Composite Score -->
+            <div class="col-12 col-md-4 text-center">
+                <div class="text-white-50 text-uppercase fw-bold letter-spacing-1 small mb-1">
+                    Overall Composite Score
+                </div>
+                <div class="score-circle-wrapper">
+                    <div class="score-circle primary">
+                        <span>{{ record.cognitive_score|floatformat:1 }}</span>
+                        <span class="score-subtext">Index / 100</span>
+                    </div>
+                </div>
+                <div>
+                    <span class="badge bg-primary-subtle text-white border border-primary px-3 py-1 rounded-pill small">
+                        <i class="bi bi-cpu me-1"></i> Weighted Neuro Composite
+                    </span>
+                </div>
+            </div>
+
+            <!-- AI Model Prediction -->
+            <div class="col-12 col-md-4 text-center border-start-md border-end-md border-secondary">
+                <div class="text-white-50 text-uppercase fw-bold letter-spacing-1 small mb-1">
+                    AI Predicted Score
+                </div>
+                <div class="score-circle-wrapper">
+                    <div class="score-circle ai">
+                        <span>{{ record.ai_predicted_score|floatformat:1 }}</span>
+                        <span class="score-subtext">ML Score / 100</span>
+                    </div>
+                </div>
+                <div>
+                    <span class="badge bg-success-subtle text-white border border-success px-3 py-1 rounded-pill small">
+                        <i class="bi bi-diagram-2 me-1"></i> Scikit-Learn Model
+                    </span>
+                </div>
+            </div>
+
+            <!-- Clinical Performance Summary -->
+            <div class="col-12 col-md-4 text-center text-md-start ps-md-4">
+                <div class="text-white-50 text-uppercase fw-bold small">
+                    Clinical Classification
+                </div>
+                <h3 class="fw-bold text-white mt-1 mb-2">
+                    {{ record.performance_tier }}
+                </h3>
+                <p class="text-white-50 small mb-0 lh-base">
+                    {{ tier_config.summary }}
+                </p>
+                <div class="mt-3 pt-2 border-top border-secondary small text-white-50 d-flex justify-content-between align-items-center">
+                    <span>Weights: Reflex (25%) + Memory (45%) + CDT (30%)</span>
+                    <i class="bi bi-shield-check text-success fs-5"></i>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ================= Module Deep-Dive Metrics ================= -->
+    <div class="row g-4 mb-4">
+
+        <!-- Module 1: Sensorimotor Reaction Latency -->
+        <div class="col-12 col-md-4">
+            <div class="metric-card-custom">
+                <div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted fw-bold small text-uppercase">
+                            <i class="bi bi-lightning-charge-fill text-warning me-1"></i> Reflex Speed
+                        </span>
+                        <span class="badge bg-primary-subtle text-primary fw-bold">Step 3</span>
+                    </div>
+
+                    <div class="d-flex align-items-baseline gap-2 mb-1">
+                        <h2 class="fw-bold text-primary mb-0">{{ record.reaction_time|floatformat:0 }}</h2>
+                        <span class="text-muted fw-semibold">ms latency</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between small text-muted mt-2">
+                        <span>Reflex Score:</span>
+                        <span class="fw-bold text-dark">{{ norm_reaction|floatformat:1 }} / 100</span>
+                    </div>
+
+                    <div class="sub-meter-bar mt-2">
+                        <div class="sub-meter-fill bg-primary" style="width: {{ norm_reaction }}%;"></div>
+                    </div>
+                </div>
+
+                <div class="mt-3 pt-3 border-top">
+                    <p class="small text-muted mb-0">
+                        {% if record.reaction_time < 240 %}
+                        <span class="text-success fw-semibold"><i class="bi bi-lightning-fill"></i> Superior Latency:</span> Exceptionally rapid visual-motor signaling.
+                        {% elif record.reaction_time <= 340 %}
+                        <span class="text-primary fw-semibold"><i class="bi bi-check-circle-fill"></i> Healthy Reflex:</span> Optimal response latency within expected baseline.
+                        {% else %}
+                        <span class="text-warning fw-semibold"><i class="bi bi-exclamation-circle-fill"></i> Mild Latency:</span> Moderate processing delay observed.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 2: 4-Stage Memory Retention -->
+        <div class="col-12 col-md-4">
+            <div class="metric-card-custom">
+                <div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted fw-bold small text-uppercase">
+                            <i class="bi bi-grid-3x3-gap-fill text-success me-1"></i> Memory Retention
+                        </span>
+                        <span class="badge bg-success-subtle text-success fw-bold">Step 4</span>
+                    </div>
+
+                    <div class="d-flex align-items-baseline gap-2 mb-1">
+                        <h2 class="fw-bold text-success mb-0">{{ record.memory_score }}</h2>
+                        <span class="text-muted fw-semibold">/ 100</span>
+                    </div>
+
+                    <div class="sub-meter-container">
+                        <div class="sub-meter-row">
+                            <div class="d-flex justify-content-between text-muted">
+                                <span>Visual Pattern:</span>
+                                <span class="fw-bold text-dark">{{ record.visual_memory_score }}/30 ({{ pct_visual }}%)</span>
+                            </div>
+                            <div class="sub-meter-bar">
+                                <div class="sub-meter-fill bg-success" style="width: {{ pct_visual }}%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="sub-meter-row">
+                            <div class="d-flex justify-content-between text-muted">
+                                <span>Recognition:</span>
+                                <span class="fw-bold text-dark">{{ record.recognition_score }}/25 ({{ pct_recognition }}%)</span>
+                            </div>
+                            <div class="sub-meter-bar">
+                                <div class="sub-meter-fill bg-success" style="width: {{ pct_recognition }}%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="sub-meter-row">
+                            <div class="d-flex justify-content-between text-muted">
+                                <span>Object Location:</span>
+                                <span class="fw-bold text-dark">{{ record.object_location_score }}/25 ({{ pct_location }}%)</span>
+                            </div>
+                            <div class="sub-meter-bar">
+                                <div class="sub-meter-fill bg-success" style="width: {{ pct_location }}%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="sub-meter-row">
+                            <div class="d-flex justify-content-between text-muted">
+                                <span>Delayed Recall:</span>
+                                <span class="fw-bold text-dark">{{ record.delayed_recall_score }}/20 ({{ pct_delayed }}%)</span>
+                            </div>
+                            <div class="sub-meter-bar">
+                                <div class="sub-meter-fill bg-primary" style="width: {{ pct_delayed }}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 pt-2 border-top text-muted small">
+                    Combined across 4 episodic & spatial recall modules.
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 3: Visuospatial Clock Drawing Test (CDT) -->
+        <div class="col-12 col-md-4">
+            <div class="metric-card-custom">
+                <div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted fw-bold small text-uppercase">
+                            <i class="bi bi-clock-history text-purple me-1" style="color: #7c3aed;"></i> Clock Drawing (CV)
+                        </span>
+                        <span class="badge" style="background: #f3e8ff; color: #7c3aed; font-weight: bold;">Step 5</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="d-flex align-items-baseline gap-2 mb-1">
+                                <h2 class="fw-bold mb-0" style="color: #7c3aed;">{{ record.clock_score }}</h2>
+                                <span class="text-muted fw-semibold">/ 20</span>
+                            </div>
+                            <div class="text-muted small">
+                                Normalized: <strong>{{ norm_clock|floatformat:1 }}%</strong>
+                            </div>
+                        </div>
+
+                        {% if record.clock_image %}
+                        <div class="clock-thumb-container" onclick="openClockModal()" title="Click to inspect drawing">
+                            <img src="/media/{{ record.clock_image }}" alt="Clock Drawing Test" class="clock-thumb-img" onerror="this.parentElement.innerHTML='<div class=\'clock-placeholder-box\'><i class=\'bi bi-clock fs-4\'></i>Drawing</div>';">
+                            <div class="clock-thumb-overlay">
+                                <i class="bi bi-zoom-in me-1"></i> Inspect
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="clock-placeholder-box">
+                            <i class="bi bi-clock fs-4"></i>
+                            <span>No Image</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="sub-meter-container mt-3">
+                        <div class="sub-meter-row">
+                            <div class="d-flex justify-content-between text-muted">
+                                <span>Contour Circularity:</span>
+                                <span class="fw-bold text-dark">{{ record.clock_contour_score }}/4</span>
+                            </div>
+                            <div class="sub-meter-bar">
+                                <div class="sub-meter-fill" style="background: #7c3aed; width: {{ pct_clock_contour }}%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="sub-meter-row">
+                            <div class="d-flex justify-content-between text-muted">
+                                <span>Number Placement:</span>
+                                <span class="fw-bold text-dark">{{ record.clock_numbers_score }}/8</span>
+                            </div>
+                            <div class="sub-meter-bar">
+                                <div class="sub-meter-fill" style="background: #7c3aed; width: {{ pct_clock_numbers }}%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="sub-meter-row">
+                            <div class="d-flex justify-content-between text-muted">
+                                <span>Hand Angle Orientation:</span>
+                                <span class="fw-bold text-dark">{{ record.clock_hands_score }}/8</span>
+                            </div>
+                            <div class="sub-meter-bar">
+                                <div class="sub-meter-fill" style="background: #7c3aed; width: {{ pct_clock_hands }}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 pt-2 border-top text-muted small">
+                    Automated Rouleau & Shulman Computer Vision scoring.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= Visual Charts Section ================= -->
+    <div class="row g-4 mb-4">
+        <!-- 6-Domain Radar Chart -->
+        <div class="col-12 col-lg-6">
+            <div class="chart-card-wrapper">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0 text-dark">
+                        <i class="bi bi-diagram-3-fill text-primary me-2"></i> Cognitive Domain Profile
+                    </h6>
+                    <span class="badge bg-light text-muted border">6 Clinical Axes</span>
+                </div>
+                <div class="chart-canvas-box">
+                    <canvas id="cognitiveRadarChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparative Bar Chart -->
+        <div class="col-12 col-lg-6">
+            <div class="chart-card-wrapper">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0 text-dark">
+                        <i class="bi bi-bar-chart-line-fill text-success me-2"></i> Sub-Assessment Comparison
+                    </h6>
+                    <span class="badge bg-light text-muted border">Normalized (0 - 100)</span>
+                </div>
+                <div class="chart-canvas-box">
+                    <canvas id="comparisonBarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= AI Lifestyle & Cognitive Recommendations ================= -->
+    <div class="chart-card-wrapper p-4 mb-4" style="background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h5 class="fw-bold mb-1 text-dark">
+                    <i class="bi bi-stars text-warning me-2"></i> AI Personal Improvement Plan & Recommendations
+                </h5>
+                <p class="text-muted small mb-0">
+                    Automated diagnosis of lifestyle factors and test performance with targeted cognitive training suggestions.
+                </p>
+            </div>
+            <span class="badge bg-warning-subtle text-dark border border-warning px-3 py-2 rounded-pill font-monospace small">
+                <i class="bi bi-lightbulb-fill me-1"></i> Actionable Insights
+            </span>
+        </div>
+
+        <!-- 1. Lifestyle & Health Factor Recommendations -->
+        <div class="mb-4">
+            <h6 class="fw-bold text-uppercase letter-spacing-1 text-muted small mb-3">
+                <i class="bi bi-heart-pulse-fill text-danger me-1"></i> 1. Lifestyle & Well-Being Optimization
+            </h6>
+            <div class="row g-3">
+                {% for rec in lifestyle_recs %}
+                <div class="col-12 col-md-6">
+                    <div class="p-3 bg-white border rounded-3 h-100 shadow-sm d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold text-dark fs-6">
+                                    <i class="bi {{ rec.icon }} {{ rec.icon_color }} me-1"></i> {{ rec.title }}
+                                </span>
+                                <span class="badge {{ rec.badge_class }} rounded-pill px-2 py-1 small">{{ rec.status }}</span>
+                            </div>
+                            <p class="text-muted small mb-2">
+                                <strong>Observation:</strong> {{ rec.observation }}
+                            </p>
+                        </div>
+                        <div class="p-3 rounded-3 bg-light border-start border-4 border-primary text-dark small lh-base mt-2">
+                            <strong class="text-primary"><i class="bi bi-lightbulb me-1"></i> Recommendation:</strong> {{ rec.suggestion }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 2. Cognitive & Game Module Suggestions -->
+        <div>
+            <h6 class="fw-bold text-uppercase letter-spacing-1 text-muted small mb-3">
+                <i class="bi bi-controller text-primary me-1"></i> 2. Cognitive Game & Module Improvement Plan
+            </h6>
+            <div class="row g-3">
+                {% for rec in cognitive_recs %}
+                <div class="col-12 col-md-6">
+                    <div class="p-3 bg-white border rounded-3 h-100 shadow-sm d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold text-dark fs-6">
+                                    <i class="bi {{ rec.icon }} {{ rec.icon_color }} me-1"></i> {{ rec.title }}
+                                </span>
+                                <span class="badge {{ rec.badge_class }} rounded-pill px-2 py-1 small">{{ rec.status }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted small mb-2">
+                                <span>Score Evaluated: <strong class="text-dark">{{ rec.score_str }}</strong></span>
+                            </div>
+                            <p class="text-muted small mb-2">
+                                <strong>Diagnosis:</strong> {{ rec.observation }}
+                            </p>
+                        </div>
+                        <div class="p-3 rounded-3 bg-light border-start border-4 border-success text-dark small lh-base mt-2">
+                            <strong class="text-success"><i class="bi bi-check2-circle me-1"></i> Training Suggestions:</strong> {{ rec.suggestion }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= Detailed Clinical Domain Table ================= -->
+    <div class="chart-card-wrapper p-4 mb-4">
+        <h5 class="fw-bold mb-3 text-dark">
+            <i class="bi bi-clipboard2-pulse-fill text-primary me-2"></i> Clinical Sub-Domain Score Matrix
+        </h5>
+
+        <div class="table-responsive">
+            <table class="table domain-table align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Domain / Test Module</th>
+                        <th>Sub-Metric</th>
+                        <th>Raw Score</th>
+                        <th>Normalized %</th>
+                        <th>Clinical Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="fw-semibold">Sensorimotor Latency</td>
+                        <td>Visual Stimulus Reflex</td>
+                        <td>{{ record.reaction_time|floatformat:0 }} ms</td>
+                        <td><strong>{{ norm_reaction|floatformat:1 }}%</strong></td>
+                        <td>
+                            {% if record.reaction_time < 240 %}
+                            <span class="badge bg-success-subtle text-success">Superior</span>
+                            {% elif record.reaction_time <= 340 %}
+                            <span class="badge bg-primary-subtle text-primary">Normal</span>
+                            {% else %}
+                            <span class="badge bg-warning-subtle text-warning">Attention Needed</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="fw-semibold" rowspan="4">Memory & Retention</td>
+                        <td>Visual Pattern Recall</td>
+                        <td>{{ record.visual_memory_score }} / 30</td>
+                        <td><strong>{{ pct_visual }}%</strong></td>
+                        <td>
+                            {% if pct_visual >= 75 %}<span class="badge bg-success-subtle text-success">Optimal</span>
+                            {% elif pct_visual >= 50 %}<span class="badge bg-primary-subtle text-primary">Normal</span>
+                            {% else %}<span class="badge bg-warning-subtle text-warning">Moderate</span>{% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Recognition Memory</td>
+                        <td>{{ record.recognition_score }} / 25</td>
+                        <td><strong>{{ pct_recognition }}%</strong></td>
+                        <td>
+                            {% if pct_recognition >= 75 %}<span class="badge bg-success-subtle text-success">Optimal</span>
+                            {% elif pct_recognition >= 50 %}<span class="badge bg-primary-subtle text-primary">Normal</span>
+                            {% else %}<span class="badge bg-warning-subtle text-warning">Moderate</span>{% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Object-Location Association</td>
+                        <td>{{ record.object_location_score }} / 25</td>
+                        <td><strong>{{ pct_location }}%</strong></td>
+                        <td>
+                            {% if pct_location >= 75 %}<span class="badge bg-success-subtle text-success">Optimal</span>
+                            {% elif pct_location >= 50 %}<span class="badge bg-primary-subtle text-primary">Normal</span>
+                            {% else %}<span class="badge bg-warning-subtle text-warning">Moderate</span>{% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Delayed Recall</td>
+                        <td>{{ record.delayed_recall_score }} / 20</td>
+                        <td><strong>{{ pct_delayed }}%</strong></td>
+                        <td>
+                            {% if pct_delayed >= 75 %}<span class="badge bg-success-subtle text-success">Optimal</span>
+                            {% elif pct_delayed >= 50 %}<span class="badge bg-primary-subtle text-primary">Normal</span>
+                            {% else %}<span class="badge bg-warning-subtle text-warning">Moderate</span>{% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="fw-semibold" rowspan="3">Visuospatial & Executive</td>
+                        <td>Clock Contour Circularity</td>
+                        <td>{{ record.clock_contour_score }} / 4</td>
+                        <td><strong>{{ pct_clock_contour }}%</strong></td>
+                        <td>
+                            {% if pct_clock_contour >= 75 %}<span class="badge bg-success-subtle text-success">Intact</span>
+                            {% else %}<span class="badge bg-warning-subtle text-warning">Minor Deviation</span>{% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Clock Numbers Distribution</td>
+                        <td>{{ record.clock_numbers_score }} / 8</td>
+                        <td><strong>{{ pct_clock_numbers }}%</strong></td>
+                        <td>
+                            {% if pct_clock_numbers >= 75 %}<span class="badge bg-success-subtle text-success">Intact</span>
+                            {% else %}<span class="badge bg-warning-subtle text-warning">Minor Deviation</span>{% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Clock Hands Angle & Setting</td>
+                        <td>{{ record.clock_hands_score }} / 8</td>
+                        <td><strong>{{ pct_clock_hands }}%</strong></td>
+                        <td>
+                            {% if pct_clock_hands >= 75 %}<span class="badge bg-success-subtle text-success">Accurate</span>
+                            {% else %}<span class="badge bg-warning-subtle text-warning">Deviation Observed</span>{% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- ================= Clock Inspection Modal ================= -->
+{% if record.clock_image %}
+<div class="modal fade" id="clockInspectModal" tabindex="-1" aria-labelledby="clockInspectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header bg-light border-bottom">
+                <h5 class="modal-title fw-bold" id="clockInspectModalLabel">
+                    <i class="bi bi-clock-history text-purple me-2"></i> Clock Drawing Test - Visual Inspection
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <div class="p-3 bg-light rounded-3 border d-inline-block">
+                    <img src="/media/{{ record.clock_image }}" alt="Clock Drawing Full" class="img-fluid rounded-3" style="max-height: 420px;">
+                </div>
+                <div class="row g-3 mt-3 text-start justify-content-center">
+                    <div class="col-12 col-md-4">
+                        <div class="p-2 border rounded-3 bg-light text-center">
+                            <small class="text-muted d-block">Contour Score</small>
+                            <strong class="text-primary fs-5">{{ record.clock_contour_score }} / 4</strong>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="p-2 border rounded-3 bg-light text-center">
+                            <small class="text-muted d-block">Number Placement</small>
+                            <strong class="text-primary fs-5">{{ record.clock_numbers_score }} / 8</strong>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="p-2 border rounded-3 bg-light text-center">
+                            <small class="text-muted d-block">Hands & Orientation</small>
+                            <strong class="text-success fs-5">{{ record.clock_hands_score }} / 8</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light border-top">
+                <button type="button" class="btn btn-secondary btn-sm px-4 rounded-pill" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ================= Safe JSON Serialization for Chart.js ================= -->
+{{ chart_data|json_script:"report-chart-data" }}
+
+<script>
+    // Modal helper
+    function openClockModal() {
+        const modalEl = document.getElementById('clockInspectModal');
+        if (modalEl && typeof bootstrap !== 'undefined') {
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Safely extract chart data JSON
+        let chartData = null;
+        try {
+            const chartDataEl = document.getElementById("report-chart-data");
+            if (chartDataEl) {
+                chartData = JSON.parse(chartDataEl.textContent);
+            }
+        } catch (e) {
+            console.error("Error parsing chart data:", e);
+        }
+
+        if (!chartData) {
+            console.warn("Chart data is not available.");
+            return;
+        }
+
+        // ================= 1. Radar Chart =================
+        const radarCanvas = document.getElementById('cognitiveRadarChart');
+        if (radarCanvas && chartData.radar) {
+            const radarCtx = radarCanvas.getContext('2d');
+            new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: chartData.radar.labels,
+                    datasets: [
+                        {
+                            label: 'Your Score (%)',
+                            data: chartData.radar.user_scores,
+                            backgroundColor: 'rgba(37, 99, 235, 0.22)',
+                            borderColor: '#2563eb',
+                            borderWidth: 2.5,
+                            pointBackgroundColor: '#2563eb',
+                            pointBorderColor: '#ffffff',
+                            pointHoverBackgroundColor: '#ffffff',
+                            pointHoverBorderColor: '#2563eb',
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Normative Baseline (75%)',
+                            data: chartData.radar.norm_scores,
+                            borderColor: '#94a3b8',
+                            borderDash: [5, 5],
+                            borderWidth: 1.5,
+                            backgroundColor: 'rgba(148, 163, 184, 0.05)',
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#e2e8f0' },
+                            grid: { color: '#f1f5f9' },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            ticks: {
+                                stepSize: 25,
+                                display: false
+                            },
+                            pointLabels: {
+                                font: {
+                                    family: "'Poppins', sans-serif",
+                                    size: 11,
+                                    weight: '600'
+                                },
+                                color: '#475569'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                font: {
+                                    family: "'Poppins', sans-serif",
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + Number(context.raw).toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ================= 2. Comparison Bar Chart =================
+        const barCanvas = document.getElementById('comparisonBarChart');
+        if (barCanvas && chartData.bar) {
+            const barCtx = barCanvas.getContext('2d');
+            new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.bar.labels,
+                    datasets: [{
+                        label: 'Score (Normalized / 100)',
+                        data: chartData.bar.scores,
+                        backgroundColor: [
+                            '#2563eb', // Blue (Reflex)
+                            '#10b981', // Emerald (Memory)
+                            '#7c3aed', // Purple (Clock)
+                            '#0ea5e9', // Sky (Composite)
+                            '#f59e0b'  // Amber (AI)
+                        ],
+                        borderRadius: 8,
+                        borderSkipped: false,
+                        borderWidth: 1,
+                        borderColor: 'rgba(255, 255, 255, 0.6)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: { color: '#f1f5f9' },
+                            ticks: {
+                                stepSize: 20,
+                                font: { family: "'Poppins', sans-serif" }
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                font: {
+                                    family: "'Poppins', sans-serif",
+                                    size: 11,
+                                    weight: '500'
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Score: ' + Number(context.raw).toFixed(1) + ' / 100';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ================= 3. JSON Data Export =================
+        const downloadJsonBtn = document.getElementById('downloadJsonBtn');
+        if (downloadJsonBtn) {
+            downloadJsonBtn.addEventListener('click', function () {
+                const reportSummary = {
+                    participant: {
+                        name: "{{ record.name|escapejs }}",
+                        age: {{ record.age }},
+                        gender: "{{ record.gender|escapejs }}",
+                        timestamp: "{{ record.created_at|date:'c' }}"
+                    },
+                    scores: {
+                        reaction_time_ms: {{ record.reaction_time|floatformat:1 }},
+                        norm_reaction_score: {{ norm_reaction|floatformat:1 }},
+                        visual_memory_score: {{ record.visual_memory_score }},
+                        recognition_score: {{ record.recognition_score }},
+                        object_location_score: {{ record.object_location_score }},
+                        delayed_recall_score: {{ record.delayed_recall_score }},
+                        total_memory_score: {{ record.memory_score }},
+                        clock_score: {{ record.clock_score }},
+                        clock_contour_score: {{ record.clock_contour_score }},
+                        clock_numbers_score: {{ record.clock_numbers_score }},
+                        clock_hands_score: {{ record.clock_hands_score }},
+                        composite_cognitive_score: {{ record.cognitive_score|floatformat:1 }},
+                        ai_predicted_score: {{ record.ai_predicted_score|floatformat:1 }},
+                        performance_tier: "{{ record.performance_tier|escapejs }}"
+                    },
+                    lifestyle_factors: {
+                        sleep_hours: {{ record.sleep_duration }},
+                        stress_level: {{ record.stress_level }},
+                        screen_time_hours: "{{ record.screen_time|escapejs }}",
+                        exercise_frequency: "{{ record.exercise_frequency|escapejs }}"
+                    }
+                };
+
+                const blob = new Blob([JSON.stringify(reportSummary, null, 2)], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `Cognitive_Report_{{ record.name|slugify }}_${Date.now()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        }
+    });
+</script>
+
+{% endblock %}

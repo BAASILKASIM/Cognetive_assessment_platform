@@ -1,0 +1,416 @@
+/* ======================================================
+   COGNITIVE ASSESSMENT PLATFORM - EXECUTIVE MEDTECH DESIGN
+   Deep Sapphire & Clinical Slate Color System
+====================================================== */
+
+:root {
+    /* Primary Clinical Sapphire Palette */
+    --primary: #1e3a8a;
+    --primary-light: #2563eb;
+    --primary-hover: #1d4ed8;
+    --secondary: #0f766e;
+    --accent-purple: #6d28d9;
+    --accent-teal: #0d9488;
+    --success: #059669;
+    --warning: #d97706;
+    --danger: #dc2626;
+
+    /* Surface & Background */
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --glass-bg: rgba(255, 255, 255, 0.92);
+    --border-color: #e2e8f0;
+    --border-hover: #93c5fd;
+
+    /* Typography Colors */
+    --text-dark: #0f172a;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+
+    /* Radius & Transitions */
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.04);
+    --shadow-hover: 0 16px 36px rgba(30, 58, 138, 0.12);
+}
+
+/* ======================================================
+   BASE TYPOGRAPHY & BODY
+====================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg);
+    background-image: 
+        radial-gradient(circle at 10% 15%, rgba(30, 58, 138, 0.03) 0%, transparent 40%),
+        radial-gradient(circle at 90% 85%, rgba(15, 118, 110, 0.03) 0%, transparent 40%);
+    color: var(--text-main);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+    color: var(--text-dark);
+    letter-spacing: -0.02em;
+}
+
+/* ======================================================
+   NAVBAR
+====================================================== */
+.navbar {
+    background: linear-gradient(135deg, #0b132b 0%, #1c2541 100%);
+    padding: 16px 0;
+    border-bottom: 2px solid #1e3a8a;
+    box-shadow: 0 4px 20px rgba(11, 19, 43, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.brand-logo-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #1e3a8a, #0f766e);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.4);
+}
+
+.navbar-brand span {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #ffffff;
+}
+
+.brand-badge {
+    background: linear-gradient(135deg, #2563eb, #0d9488);
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+}
+
+/* ======================================================
+   CARDS & CONTAINERS
+====================================================== */
+.hero-section {
+    padding: 60px 0;
+}
+
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+}
+
+.card-box {
+    background: #ffffff;
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.05);
+    border: 1.5px solid var(--border-color);
+    transition: var(--transition);
+}
+
+/* ======================================================
+   BUTTONS
+====================================================== */
+.btn-main {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 12px 28px;
+    font-weight: 600;
+    font-family: 'Outfit', sans-serif;
+    transition: var(--transition);
+    box-shadow: 0 6px 18px rgba(30, 58, 138, 0.25);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.btn-main:hover {
+    transform: translateY(-2px);
+    color: #ffffff;
+    box-shadow: 0 12px 26px rgba(30, 58, 138, 0.35);
+    background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
+}
+
+.btn-outline-main {
+    background: #ffffff;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+    border-radius: var(--radius-sm);
+    padding: 11px 26px;
+    font-weight: 600;
+    font-family: 'Outfit', sans-serif;
+    transition: var(--transition);
+}
+
+.btn-outline-main:hover {
+    background: var(--primary);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(30, 58, 138, 0.2);
+}
+
+/* ======================================================
+   STEPPER & PROGRESS
+====================================================== */
+.assessment-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.assessment-header h2 {
+    font-size: 2.1rem;
+    font-weight: 700;
+    margin-top: 6px;
+}
+
+.assessment-header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-top: 4px;
+}
+
+.assessment-stepper-container {
+    max-width: 860px;
+    margin: 0 auto 32px;
+}
+
+.assessment-stepper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    margin-bottom: 18px;
+}
+
+.assessment-stepper::before {
+    content: "";
+    position: absolute;
+    top: 24px;
+    left: 40px;
+    right: 40px;
+    height: 3px;
+    background: #e2e8f0;
+    z-index: 0;
+    border-radius: 10px;
+}
+
+.step {
+    text-align: center;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.step .circle {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #94a3b8;
+    border: 2.5px solid #cbd5e1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    font-size: 1.05rem;
+    transition: var(--transition);
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05);
+}
+
+.step p {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: var(--transition);
+}
+
+.step.active .circle {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: #ffffff;
+    border-color: #1e3a8a;
+    box-shadow: 0 0 0 5px rgba(30, 58, 138, 0.15), 0 8px 18px rgba(30, 58, 138, 0.3);
+    transform: scale(1.08);
+}
+
+.step.active p {
+    color: #1e3a8a;
+    font-weight: 700;
+}
+
+.step.completed .circle {
+    background: var(--success);
+    color: #ffffff;
+    border-color: var(--success);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+}
+
+.step.completed p {
+    color: var(--text-dark);
+}
+
+.main-progress-bar {
+    height: 8px;
+    border-radius: 20px;
+    background: #e2e8f0;
+    overflow: hidden;
+}
+
+.main-progress-bar .progress-bar {
+    background: linear-gradient(135deg, #1e3a8a, #0f766e);
+    border-radius: 20px;
+    transition: width 0.5s ease;
+}
+
+/* ======================================================
+   INSTRUCTIONS BOX
+====================================================== */
+.instruction-box {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    padding: 24px 30px;
+    max-width: 620px;
+    margin: 0 auto 30px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+    text-align: center;
+}
+
+.instruction-box h5 {
+    color: var(--primary);
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.instruction-box p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+/* ======================================================
+   FORM CONTROLS & RANGE SLIDERS
+====================================================== */
+.form-control {
+    border-radius: var(--radius-sm);
+    padding: 12px 18px;
+    border: 1.5px solid var(--border-color);
+    font-size: 0.95rem;
+    transition: var(--transition);
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.12);
+}
+
+.custom-range-slider {
+    width: 100%;
+    height: 8px;
+    border-radius: 10px;
+    background: #e2e8f0;
+    outline: none;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+/* ======================================================
+   OPTION CARD GRIDS
+====================================================== */
+.option-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.option-card {
+    position: relative;
+    cursor: pointer;
+    background: #ffffff;
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    transition: var(--transition);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+    text-align: center;
+    display: block;
+}
+
+.option-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--primary);
+    box-shadow: 0 10px 24px rgba(30, 58, 138, 0.12);
+}
+
+.option-card input {
+    position: absolute;
+    opacity: 0;
+}
+
+.option-card span {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.option-card span i {
+    font-size: 1.6rem;
+    color: var(--primary);
+}
+
+.option-card:has(input:checked) {
+    border-color: var(--primary);
+    background: #f0f4ff;
+    box-shadow: 0 10px 25px rgba(30, 58, 138, 0.18);
+}
+
+.option-card input:checked + span {
+    color: var(--primary);
+}
+
+/* ======================================================
+   FOOTER
+====================================================== */
+.app-footer {
+    margin-top: auto;
+    background: #ffffff;
+    border-top: 1px solid var(--border-color);
+}

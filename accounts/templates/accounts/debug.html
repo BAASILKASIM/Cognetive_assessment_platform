@@ -1,0 +1,332 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block title %}Session Debug & Marks Inspector{% endblock %}
+
+{% block content %}
+<div class="container py-4 py-md-5">
+
+    <!-- Hero Banner -->
+    <div class="card border-0 rounded-4 shadow-lg mb-4 overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%); color: white;">
+        <div class="card-body p-4 p-md-5 position-relative">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 position-relative z-1">
+                <div>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill mb-2">
+                        <i class="bi bi-bug-fill me-1"></i> Developer & Clinical Inspector
+                    </span>
+                    <h1 class="h2 fw-bold text-white mb-2">Session Debug & Marks Inspection</h1>
+                    <p class="text-white-50 mb-0">
+                        Live real-time inspection of active session state, module marks, participant details, and composite cognitive scores.
+                    </p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'session_debug' %}?format=json" class="btn btn-outline-light rounded-pill px-3" target="_blank">
+                        <i class="bi bi-filetype-json me-1"></i> Raw JSON
+                    </a>
+                    <a href="{% url 'report' %}" class="btn btn-primary rounded-pill px-3 shadow">
+                        <i class="bi bi-file-earmark-bar-graph me-1"></i> View Report
+                    </a>
+                    <a href="{% url 'retake_assessment' %}" class="btn btn-danger rounded-pill px-3" onclick="return confirm('Clear session and restart assessment?')">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Clear Session
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="row g-3 mb-4">
+        <!-- Participant Overview Card -->
+        <div class="col-md-4">
+            <div class="card border-0 rounded-4 shadow-sm h-100 p-3 bg-white">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary p-3 fs-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                        <i class="bi bi-person-bounding-box"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small text-uppercase fw-semibold">Participant</div>
+                        <h4 class="fw-bold mb-0 text-dark">{{ marks.name }}</h4>
+                        <small class="text-secondary">{{ marks.age }} years old &bull; {{ marks.gender }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Composite Score Card -->
+        <div class="col-md-4">
+            <div class="card border-0 rounded-4 shadow-sm h-100 p-3 bg-white">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-success bg-opacity-10 text-success p-3 fs-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                        <i class="bi bi-speedometer2"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small text-uppercase fw-semibold">Composite Cognitive Score</div>
+                        <h4 class="fw-bold mb-0 text-success">{{ marks.cognitive_score }} <span class="fs-6 text-muted">/ 100</span></h4>
+                        <small class="text-secondary">Tier: <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1">{{ marks.performance_tier }}</span></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Predicted Score Card -->
+        <div class="col-md-4">
+            <div class="card border-0 rounded-4 shadow-sm h-100 p-3 bg-white">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-info bg-opacity-10 text-info p-3 fs-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
+                        <i class="bi bi-cpu-fill"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small text-uppercase fw-semibold">AI Model Predicted Score</div>
+                        <h4 class="fw-bold mb-0 text-info">{{ marks.ai_predicted_score }} <span class="fs-6 text-muted">/ 100</span></h4>
+                        <small class="text-secondary">Scikit-Learn ML Model</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lifestyle Factors -->
+    <div class="card border-0 rounded-4 shadow-sm mb-4 bg-white p-4">
+        <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+            <i class="bi bi-heart-pulse text-danger"></i> Participant Lifestyle Factors
+        </h5>
+        <div class="row g-3">
+            <div class="col-6 col-md-3">
+                <div class="p-3 bg-light rounded-3">
+                    <div class="text-muted small">Sleep Duration</div>
+                    <div class="fw-bold fs-5 text-dark">{{ marks.sleep_duration }} <span class="fs-6 font-normal">hrs</span></div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 bg-light rounded-3">
+                    <div class="text-muted small">Stress Level</div>
+                    <div class="fw-bold fs-5 text-dark">{{ marks.stress_level }} <span class="fs-6 font-normal">/ 10</span></div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 bg-light rounded-3">
+                    <div class="text-muted small">Daily Screen Time</div>
+                    <div class="fw-bold fs-5 text-dark">{{ marks.screen_time }} <span class="fs-6 font-normal">hrs</span></div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 bg-light rounded-3">
+                    <div class="text-muted small">Exercise Frequency</div>
+                    <div class="fw-bold fs-5 text-dark">{{ marks.exercise_frequency }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Marks Breakdown Grid -->
+    <div class="card border-0 rounded-4 shadow-sm mb-4 bg-white p-4">
+        <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+            <i class="bi bi-grid-3x3-gap-fill text-primary"></i> Complete Test Marks & Submodule Scores
+        </h5>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle border-top">
+                <thead class="table-light">
+                    <tr>
+                        <th>Module / Domain</th>
+                        <th>Raw Value / Sub-Scores</th>
+                        <th>Calculated Score</th>
+                        <th>Normalized Marks (0-100)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Reaction Time -->
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-lightning-charge-fill text-warning fs-5"></i>
+                                <div>
+                                    <strong class="d-block">Reaction Time Test</strong>
+                                    <small class="text-muted">Speed & Visual Reflexes</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td><code>{{ marks.reaction_time }} ms</code></td>
+                        <td><span class="badge bg-warning text-dark px-3 py-2 fs-6">{{ marks.reaction_time }} ms</span></td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress flex-grow-1" style="height: 8px;">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ marks.norm_reaction }}%;"></div>
+                                </div>
+                                <span class="fw-bold">{{ marks.norm_reaction }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Memory Submodules -->
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-grid-fill text-primary fs-5"></i>
+                                <div>
+                                    <strong class="d-block">Visual Memory Grid</strong>
+                                    <small class="text-muted">Pattern Recognition</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>Score out of 30</td>
+                        <td><span class="badge bg-primary px-3 py-2 fs-6">{{ marks.visual_memory_score }} / 30</span></td>
+                        <td>
+                            {% widthratio marks.visual_memory_score 30 100 as vm_pct %}
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress flex-grow-1" style="height: 8px;">
+                                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ vm_pct }}%;"></div>
+                                </div>
+                                <span class="fw-bold">{{ vm_pct }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-app-indicator text-info fs-5"></i>
+                                <div>
+                                    <strong class="d-block">Recognition Memory</strong>
+                                    <small class="text-muted">Icon Identification</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>Score out of 25</td>
+                        <td><span class="badge bg-info px-3 py-2 fs-6">{{ marks.recognition_score }} / 25</span></td>
+                        <td>
+                            {% widthratio marks.recognition_score 25 100 as rec_pct %}
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress flex-grow-1" style="height: 8px;">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: {{ rec_pct }}%;"></div>
+                                </div>
+                                <span class="fw-bold">{{ rec_pct }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-geo-alt-fill text-secondary fs-5"></i>
+                                <div>
+                                    <strong class="d-block">Object Location Memory</strong>
+                                    <small class="text-muted">Spatial Memory</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>Score out of 25</td>
+                        <td><span class="badge bg-secondary px-3 py-2 fs-6">{{ marks.object_location_score }} / 25</span></td>
+                        <td>
+                            {% widthratio marks.object_location_score 25 100 as ol_pct %}
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress flex-grow-1" style="height: 8px;">
+                                    <div class="progress-bar bg-secondary" role="progressbar" style="width: {{ ol_pct }}%;"></div>
+                                </div>
+                                <span class="fw-bold">{{ ol_pct }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-clock-history text-dark fs-5"></i>
+                                <div>
+                                    <strong class="d-block">Delayed Recall</strong>
+                                    <small class="text-muted">Long-term Retention</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>Score out of 20</td>
+                        <td><span class="badge bg-dark px-3 py-2 fs-6">{{ marks.delayed_recall_score }} / 20</span></td>
+                        <td>
+                            {% widthratio marks.delayed_recall_score 20 100 as dr_pct %}
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress flex-grow-1" style="height: 8px;">
+                                    <div class="progress-bar bg-dark" role="progressbar" style="width: {{ dr_pct }}%;"></div>
+                                </div>
+                                <span class="fw-bold">{{ dr_pct }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Total Memory -->
+                    <tr class="table-primary fw-semibold">
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-award-fill text-primary fs-5"></i>
+                                <div>
+                                    <strong class="d-block text-primary">Combined Total Memory</strong>
+                                    <small class="text-muted">4 Memory Submodules Combined</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>Sum of 4 Submodules</td>
+                        <td><span class="badge bg-primary px-3 py-2 fs-6">{{ marks.memory_score }} / 100</span></td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress flex-grow-1" style="height: 10px;">
+                                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ marks.memory_score }}%;"></div>
+                                </div>
+                                <span class="fw-bold text-primary fs-6">{{ marks.memory_score }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Clock Test -->
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-pen-fill text-purple fs-5" style="color: #7c3aed;"></i>
+                                <div>
+                                    <strong class="d-block">Clock Drawing Test (CV)</strong>
+                                    <small class="text-muted">Visuoconstructive Ability</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <small class="d-block text-muted">Contour: <strong>{{ marks.clock_contour_score }} / 4</strong></small>
+                            <small class="d-block text-muted">Numbers: <strong>{{ marks.clock_numbers_score }} / 8</strong></small>
+                            <small class="d-block text-muted">Hands: <strong>{{ marks.clock_hands_score }} / 8</strong></small>
+                        </td>
+                        <td><span class="badge bg-success px-3 py-2 fs-6">{{ marks.clock_score }} / 20</span></td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress flex-grow-1" style="height: 8px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ marks.norm_clock }}%;"></div>
+                                </div>
+                                <span class="fw-bold">{{ marks.norm_clock }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Raw Django Session Inspector Card -->
+    <div class="card border-0 rounded-4 shadow-sm bg-white p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                <i class="bi bi-code-square text-dark"></i> Active Django Session Store (JSON)
+            </h5>
+            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="copySessionJson()">
+                <i class="bi bi-clipboard me-1"></i> Copy Session JSON
+            </button>
+        </div>
+        <pre id="sessionJsonBox" class="p-3 rounded-3 text-light bg-dark font-monospace mb-0" style="max-height: 400px; overflow-y: auto; font-size: 0.85rem;">{{ session_json }}</pre>
+    </div>
+
+</div>
+
+<script>
+function copySessionJson() {
+    const box = document.getElementById('sessionJsonBox');
+    navigator.clipboard.writeText(box.innerText).then(() => {
+        alert('Session JSON copied to clipboard!');
+    }).catch(err => {
+        console.error('Failed to copy JSON: ', err);
+    });
+}
+</script>
+{% endblock %}
