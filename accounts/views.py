@@ -231,6 +231,7 @@ def save_reaction(request):
         request.session["reaction_time"] = rt
         norm_reaction = max(0.0, min(100.0, 100.0 - ((rt - 200.0) / 400.0) * 100.0))
         request.session["reaction_score"] = round(norm_reaction, 1)
+        compute_session_marks(request)
         return JsonResponse({"status": "success"})
 
     return JsonResponse({"status": "error"}, status=400)
